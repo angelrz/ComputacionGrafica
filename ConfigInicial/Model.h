@@ -107,11 +107,20 @@ private:
 			vector.z = mesh->mVertices[i].z;
 			vertex.Position = vector;
 
-			// Normals
-			vector.x = mesh->mNormals[i].x;
-			vector.y = mesh->mNormals[i].y;
-			vector.z = mesh->mNormals[i].z;
-			vertex.Normal = vector;
+			// CORRECTION: NORMALV VERIFICATION AND CALCULATION
+			if (mesh->HasNormals())
+			{
+				vector.x = mesh->mNormals[i].x;
+				vector.y = mesh->mNormals[i].y;
+				vector.z = mesh->mNormals[i].z;
+				vertex.Normal = vector;
+			}
+			else
+			{
+				// If there are no normals, we assign a default normal to avoid the error.
+				// This is a temporary solution, since shading will not be accurate.
+				vertex.Normal = glm::vec3(0.0f, 0.0f, 0.0f);
+			}
 
 			// Texture Coordinates
 			if (mesh->mTextureCoords[0]) // Does the mesh contain texture coordinates?

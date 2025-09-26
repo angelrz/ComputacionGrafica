@@ -1,6 +1,6 @@
-// Previo 6
+// Practica 6
 // Mendoza Rodriguez Angel Jesus
-// Fecha de entrega: 21 de septiembre de 2025
+// Fecha de entrega: 26 de septiembre de 2025
 // 319087288
 
 // Std. Includes
@@ -59,7 +59,7 @@ int main( )
     glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
     
     // Create a GLFWwindow object that we can use for GLFW's functions
-    GLFWwindow *window = glfwCreateWindow( WIDTH, HEIGHT, "Previo 6 Angel Mendoza Carga de modelos y camara sintetica", nullptr, nullptr );
+    GLFWwindow *window = glfwCreateWindow( WIDTH, HEIGHT, "Practica 6 Angel Mendoza Carga de modelos y camara sintetica", nullptr, nullptr );
     
     if ( nullptr == window )
     {
@@ -100,9 +100,16 @@ int main( )
     
     // Load models
     Model perro((char*)"Models/RedDog.obj"); // Cargar ruta del objeto (modelo)
-    glm::mat4 projection = glm::perspective( camera.GetZoom( ), ( float )SCREEN_WIDTH/( float )SCREEN_HEIGHT, 0.1f, 100.0f );
     
-  
+    Model palmera((char*)"Models/Palmera/palmera.obj"); 
+    Model arbol((char*)"Models/Arbol/arbol.obj");
+    Model stego((char*)"Models/Stego/untitled.obj");
+    Model creneo((char*)"Models/Craneo/craneo.obj");
+    Model triceratop((char*)"Models/Triceratops/tripo_convert_81894be5-aabb-4d05-a9dc-458670a36a8b.obj"); 
+
+    glm::mat4 projection = glm::perspective( camera.GetZoom( ), ( float )SCREEN_WIDTH/( float )SCREEN_HEIGHT, 0.1f, 100.0f );
+
+
 
     // Game loop
     while (!glfwWindowShouldClose(window))
@@ -127,15 +134,49 @@ int main( )
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
         // Draw the loaded model
+        // Draw perro
         glm::mat4 model(1);
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
         perro.Draw(shader);
 
-        // Aplicar transformaciones al modelo
-        model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        perro.Draw(shader);
+        // Draw palmera 
+        glm::mat4 modelPalmera = glm::mat4(1.0f); // matriz para la palmera
+        modelPalmera = glm::translate(modelPalmera, glm::vec3(0.0f, 0.0f, -5.0f)); // detras del perrito
+        modelPalmera = glm::rotate(modelPalmera, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotar 90° en Y
+        modelPalmera = glm::scale(modelPalmera, glm::vec3(0.1f, 0.1f, 0.1f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelPalmera));
+        palmera.Draw(shader);
+
+        // Draw arbol - Transformaciones independientes
+        glm::mat4 modelArbol = glm::mat4(1.0f);
+        modelArbol = glm::translate(modelArbol, glm::vec3(-2.0f, 0.0f, -1.0f)); // A la izquierda y atras del perro 
+        modelArbol = glm::scale(modelArbol, glm::vec3(0.05f, 0.05f, 0.05f)); // escalando para obtener mejor vista
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelArbol));
+        arbol.Draw(shader);
+
+        // Draw stegosaurio
+        glm::mat4 modelStego = glm::mat4(1.0f); 
+        modelStego = glm::translate(modelStego, glm::vec3(-1.0f, -0.2f, 0.5f)); 
+        modelStego = glm::rotate(modelStego, glm::radians(270.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotar 270° en Y
+        modelStego = glm::scale(modelStego, glm::vec3(0.003f, 0.003f, 0.003f)); // Escalando 
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelStego));
+        stego.Draw(shader);
+
+        // Draw craneo-dinosaurio
+        glm::mat4 modelCreneo = glm::mat4(1.0f); 
+        modelCreneo = glm::translate(modelCreneo, glm::vec3(-0.5f, -0.2f, 0.1f)); // colocar a un lado del perro
+        modelCreneo = glm::scale(modelCreneo, glm::vec3(0.15f, 0.15f, 0.15f)); // Escalar 
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelCreneo));
+        creneo.Draw(shader);
+
+        // Draw triceratop 
+        glm::mat4 modelTriceratop = glm::mat4(1.0f); 
+        modelTriceratop = glm::translate(modelTriceratop, glm::vec3(0.8f, -0.1f, 0.5f)); // del lado derecho del perrito
+        modelTriceratop = glm::rotate(modelTriceratop, glm::radians(135.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotar 180° en Y
+        modelTriceratop = glm::scale(modelTriceratop, glm::vec3(0.9f, 0.9f, 0.9f)); // Escalar
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTriceratop));
+        triceratop.Draw(shader);
 
         // Swap the buffers
         glfwSwapBuffers( window );
