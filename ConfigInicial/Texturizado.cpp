@@ -1,6 +1,6 @@
-// Previo 7
+// Practica 7
 // Mendoza Rodriguez Angel Jesus
-// Fecha de entrega: 28 de septiembre 2025
+// Fecha de entrega: 10 de octubre 2025
 // 319087288
 
 #include <iostream>
@@ -61,7 +61,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	// Create a GLFWwindow object that we can use for GLFW's functions
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Previo 7 Angel Mendoza Texturizado", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Practica 7 Angel Mendoza Texturizado", nullptr, nullptr);
 
 	if (nullptr == window)
 	{
@@ -104,20 +104,58 @@ int main()
 	// Set up vertex data (and buffer(s)) and attribute pointers
 	GLfloat vertices[] =
 	{
+		// Cara1 front (2)
 		// Positions            // Colors              // Texture Coords
-		-0.5f, -0.5f, 0.0f,    1.0f, 1.0f,1.0f,		0.0f,0.0f,
-		0.5f, -0.5f, 0.0f,	   1.0f, 1.0f,1.0f,		1.0f,0.0f,
-		0.5f,  0.5f, 0.0f,     1.0f, 1.0f,1.0f,	    1.0f,1.0f,
-		-0.5f,  0.5f, 0.0f,    1.0f, 1.0f,1.0f,		0.0f,1.0f,
+		-0.5f, -0.5f, 0.5f,    1.0f, 1.0f,1.0f,		0.25f,0.27f,
+		0.5f, -0.5f, 0.5f,	   1.0f, 1.0f,1.0f,		0.5f,0.27f,
+		0.5f,  0.5f, 0.5f,     1.0f, 1.0f,1.0f,	    0.5f,0.5f,
+		-0.5f,  0.5f, 0.5f,    1.0f, 1.0f,1.0f,		0.25f,0.5f,
 
+		// Cara2 back (5)
+		// Positions            // Colors			// Texture Coords
+		0.5f, -0.5f, -0.5f,		1.0f, 1.0f, 1.0f,	0.75f,0.27f,
+		-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f,   1.0f,0.27f,
+		-0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f,   1.0f,0.5f,
+		0.5f,  0.5f, -0.5f,		1.0f, 1.0f, 1.0f,   0.75f,0.5f,
+
+		// Cara3 izquierda (1)
+		// Positions            // Colors			// Texture Coords
+		-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f,   0.0f,0.27f,
+		-0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f,   0.25f,0.27f,
+		-0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f,	0.25f,0.5f,
+		-0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f,	0.0f,0.5f,
+
+		// Cara4 derecha (6)
+		// Positions            // Colors			// Texture Coords
+		0.5f, -0.5f, 0.5f,		1.0f, 1.0f, 1.0f,	0.5f,0.27f,
+		0.5f, -0.5f, -0.5f,		1.0f, 1.0f, 1.0f,   0.75f,0.27f,
+		0.5f,  0.5f, -0.5f,		1.0f, 1.0f, 1.0f,   0.75f,0.5f,
+		0.5f,  0.5f,  0.5f,		1.0f, 1.0f, 1.0f,   0.5f,0.5f,
+
+		// Cara5 superior (3)
+		// Positions            // Colors			// Texture Coords 
+		-0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f,   0.5f,0.5f,
+		0.5f,  0.5f, -0.5f,		1.0f, 1.0f, 1.0f,   0.75f,0.5f,
+		0.5f,  0.5f,  0.5f,		1.0f, 1.0f, 1.0f,   0.75f,0.75f,
+		-0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f,   0.5f,0.75f,
 		
+
+		// Cara6 inferior (4)
+		// Positions            // Colors			// Texture Coords
+		-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f,   0.5f,0.0f,
+		0.5f, -0.5f, -0.5f,		1.0f, 1.0f, 1.0f,   0.75f,0.0f,
+		0.5f, -0.5f,  0.5f,		1.0f, 1.0f, 1.0f,   0.75f,0.27f,
+		-0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f,   0.5f,0.27f,
 	};
 
 	GLuint indices[] =
 	{  // Note that we start from 0!
-		0,1,3,
-		1,2,3
-	
+		0,1,3, 1,2,3, //Cara1
+		4,5,6, 6,7,4,
+		8,9,10, 10,11,8,
+		12,13,14, 14,15,12,
+		16,17,18, 18,19,16,
+		20,21,22, 22,23,20 // Cara6
 	};
 
 	// First, set the container's VAO (and VBO)
@@ -156,7 +194,7 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	// Diffuse map
-	image = stbi_load("images/glass.png", &textureWidth, &textureHeight, &nrChannels,0);
+	image = stbi_load("images/dado.png", &textureWidth, &textureHeight, &nrChannels,0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -211,7 +249,7 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		// Draw the light object (using light's vertex attributes)
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		// Swap the screen buffers
