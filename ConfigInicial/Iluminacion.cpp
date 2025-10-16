@@ -115,9 +115,11 @@ glm::vec3 lightPos(1.0f, 0.0f, 0.0f);
 glm::vec3 lightPos2(-1.0f, 0.0f, 0.0f); // Fuente de luz adicional
 
 // Variables para el movimiento semicircular
-float rotationAngle = 0.0f;       // angulo arco
-const float MAX_ROTATION = glm::radians(360.0f);  // limite de 360°
-const float orbitRadius = 3.5f;  // radio del arco
+float anguloSol = 0.0f;
+float anguloLuna = glm::pi<float>(); // Comienza en 180 grados (lado opuesto)
+const float MAX_ROTATION = glm::radians(180.0f);  // lim de 180° 
+const float MIN_ROTATION = 0.0f;                  // lim minimo
+const float orbitRadius = 3.5f;    // Radio del arco
 
 float movelightPos = 0.0f;
 GLfloat deltaTime = 0.0f;
@@ -323,14 +325,14 @@ int main()
 
         // Calcular posiciones en un arco 
         glm::vec3 solPos = glm::vec3(
-            orbitRadius * cos(rotationAngle),
-            orbitRadius * sin(rotationAngle),
+            orbitRadius * cos(anguloSol),
+            orbitRadius * sin(anguloSol),
             0.0f
         );
         
         glm::vec3 lunaPos = glm::vec3(
-            orbitRadius * cos(rotationAngle + glm::pi<float>()),
-            orbitRadius * sin(rotationAngle + glm::pi<float>()),
+            orbitRadius * cos(anguloLuna),
+            orbitRadius * sin(anguloLuna), 
             0.0f
         );
 
@@ -338,6 +340,16 @@ int main()
         lightPos = solPos;
         lightPos2 = lunaPos;
 
+        // intensidad de las luces cuando estan 'arriba'y 'abajo
+        float sunIntensity = glm::clamp((solPos.y + 0.5f) / (orbitRadius + 0.5f), 0.0f, 1.0f);
+        float moonIntensity = glm::clamp((lunaPos.y + 0.5f) / (orbitRadius + 0.5f), 0.0f, 1.0f);
+        // si el sol esta muy bajo, aumentar un poco la luna (y viceversa)
+        if (sunIntensity < 0.3f) {
+            moonIntensity = glm::max(moonIntensity, 0.4f);
+        }
+        if (moonIntensity < 0.3f) {
+            sunIntensity = glm::max(sunIntensity, 0.4f);
+        }
         
         lightingShader.Use();
         GLint lightPosLoc = glGetUniformLocation(lightingShader.Program, "light.position");
@@ -350,14 +362,26 @@ int main()
 
         // Set lights properties
         // Modo dia: color amarillo
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.4f, 0.4f, 0.35f);
+        /*glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.4f, 0.4f, 0.35f);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 1.0f, 0.95f, 0.8f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"), 1.0f, 1.0f, 0.9f);
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"), 1.0f, 1.0f, 0.9f);*/
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"),
+            0.4f * sunIntensity, 0.4f * sunIntensity, 0.35f * sunIntensity);
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"),
+            1.0f * sunIntensity, 0.95f * sunIntensity, 0.8f * sunIntensity);
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"),
+            1.0f * sunIntensity, 1.0f * sunIntensity, 0.9f * sunIntensity);
 
         // Modo noche: color azul
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.ambient"), 0.1f, 0.1f, 0.15f);
+        /*glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.ambient"), 0.1f, 0.1f, 0.15f);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.diffuse"), 0.2f, 0.25f, 0.4f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.specular"), 0.3f, 0.35f, 0.5f);
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.specular"), 0.3f, 0.35f, 0.5f);*/
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.ambient"),
+            0.15f * moonIntensity, 0.15f * moonIntensity, 0.2f * moonIntensity);
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.diffuse"),
+            0.4f * moonIntensity, 0.45f * moonIntensity, 0.6f * moonIntensity);
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.specular"),
+            0.5f * moonIntensity, 0.55f * moonIntensity, 0.7f * moonIntensity);
 
 
 
@@ -521,17 +545,24 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
         }
     }
 
-    if (keys[GLFW_KEY_O])
-    {
-        rotationAngle += 0.015f;  // Velocidad de rotacion
-    }
-    
-    if (keys[GLFW_KEY_L])
-    {
-        
-        rotationAngle -= 0.015f;
+    if (keys[GLFW_KEY_O] && anguloSol < MAX_ROTATION){
+        anguloSol += 0.015f;  // Sol avanza 
     }
 
+    if (keys[GLFW_KEY_L] && anguloSol > MIN_ROTATION){
+        anguloSol -= 0.015f; // Sol retrocede
+    }
+
+    if (keys[GLFW_KEY_I] && anguloLuna >= glm::pi<float>() - MAX_ROTATION) {
+        anguloLuna -= 0.015f; // luna retrocede
+    }
+        
+
+
+    if (keys[GLFW_KEY_K] && anguloLuna <= glm::pi<float>()) {
+        anguloLuna += 0.015f; // luna avanza 
+    }
+       
 
 }
 
