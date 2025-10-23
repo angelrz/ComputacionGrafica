@@ -1,0 +1,13 @@
+# Blender 3.6.23 MTL File: 'linterna.blend'
+# www.blender.org
+
+newmtl None
+Ns 159.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd None_baseColor.jpeg
+map_Ke None_emissive.jpeg
+map_Bump -bm 1.000000 None_normal.png

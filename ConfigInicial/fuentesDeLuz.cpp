@@ -1,6 +1,6 @@
-// Previo 9
+// Practica 9
 // Mendoza Rodriguez Angel Jesus
-// Fecha de entrega: 19 de octubre 2025
+// Fecha de entrega: 24 de octubre 2025
 // 319087288
 
 
@@ -122,7 +122,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);*/
 
 	// Create a GLFWwindow object that we can use for GLFW's functions
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Previo 9 Angel Mendoza Fuentes de luz", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Practica 9 Angel Mendoza Fuentes de luz", nullptr, nullptr);
 
 	if (nullptr == window)
 	{
@@ -160,7 +160,7 @@ int main()
 	Shader lightingShader("Shader/lighting.vs", "Shader/lighting.frag");
 	Shader lampShader("Shader/lamp.vs", "Shader/lamp.frag");
 	
-	Model Dog((char*)"Models/Glass/glass.obj");
+	Model Dog((char*)"Models/RedDog.obj");
 	Model Piso((char*)"Models/piso.obj");
 
 
@@ -314,14 +314,15 @@ int main()
 
 	
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.5f));
-		glEnable(GL_BLEND);//Avtiva la funcionalidad para trabajar el canal alfa
+		model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.5f));
+		model = glm::scale(model, glm::vec3(0.8f, 0.8f, 0.8f));
+		//glEnable(GL_BLEND);//Avtiva la funcionalidad para trabajar el canal alfa
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 1);
+		glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 0);
 	    Dog.Draw(lightingShader);
-		glDisable(GL_BLEND);  //Desactiva el canal alfa 
-		glBindVertexArray(0);
+		//glDisable(GL_BLEND);  //Desactiva el canal alfa 
+		glBindVertexArray(0); 
 	
 
 		// Also draw the lamp object, again binding the appropriate shader
