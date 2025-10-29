@@ -1,6 +1,6 @@
-// Previo 10
+// Practica 10
 // Mendoza Rodriguez Angel Jesus
-// Fecha de entrega: 26 de octubre 2025
+// Fecha de entrega: 31 de octubre 2025
 // 319087288
 
 #include <iostream>
@@ -105,7 +105,7 @@ float vertices[] = {
 
 glm::vec3 Light1 = glm::vec3(0);
 //Anim
-float rotBall = 0;
+float rotBall = -50; //Posicion inicial
 bool AnimBall = false;
 
 //Variables para mov  vertical
@@ -115,6 +115,11 @@ float ballMaxY = 2.0f;  //Altura max (fuente de luz)
 float ballSpeed = 0.5f; //Velocidad de movimiento
 bool movingUp = true;   //Direccion del movimiento
 
+//Animacion: cabezazo perrito-pelota
+float rotDog = 0.0;
+float salto = 0.0f;
+float cabezazo = 0.0f;	// detecta encuentro
+glm::mat4 modelTemp(1.0f);  //matTemp para transformaciones
 // Deltatime
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
 GLfloat lastFrame = 0.0f;  	// Time of last frame
@@ -131,7 +136,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);*/
 
 	// Create a GLFWwindow object that we can use for GLFW's functions
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Previo 10 Angel Mendoza Animacion basica", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Practica 10 Angel Mendoza Animacion basica", nullptr, nullptr);
 
 	if (nullptr == window)
 	{
@@ -297,6 +302,10 @@ int main()
 		Piso.Draw(lightingShader);
 
 		model = glm::mat4(1);
+		modelTemp = model = glm::translate(model, glm::vec3(0.0f, salto/2, 0.0f)); //Mover hacia arriba salto/2
+		modelTemp = glm::rotate(modelTemp, glm::radians(rotBall), glm::vec3(0.0f, 1.0f, 0.0f)); //rotar en circulo (sobre y)
+		model = glm::translate(modelTemp, glm::vec3(2.0f, 0.0f, 0.0f)); //trasladar 2u en x (el radio)
+		model = glm::rotate(model, glm::radians((salto)+cabezazo), glm::vec3(1.0f, 0.0f, 0.0f)); // rota en x y lograr el cabezazo
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 0);
 		Dog.Draw(lightingShader);
@@ -306,8 +315,9 @@ int main()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 1);
-		model = glm::translate(model, glm::vec3(0.0f, ballPosY, 0.0f));
-		//model = glm::rotate(model, glm::radians(rotBall), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelTemp = model = glm::translate(model, glm::vec3(0.0f, (-salto)+1.5f, 0.0f));
+		modelTemp = glm::rotate(modelTemp, glm::radians(rotBall-30), glm::vec3(0.0f, -1.0f, 0.0f)); // rotar pos contraria al perro
+		model = glm::translate(modelTemp, glm::vec3(2.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	    Ball.Draw(lightingShader); 
 		glDisable(GL_BLEND);  //Desactiva el canal alfa 
@@ -457,26 +467,39 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 void Animation() {
 	if (AnimBall)
 	{
-		rotBall += 0.2f;
+		rotBall -= 0.3f;
 		//printf("%f", rotBall);
-		if (movingUp) {
-			ballPosY += ballSpeed * deltaTime;
-			if (ballPosY >= ballMaxY) {
-				ballPosY = ballMaxY;
-				movingUp = false; //Ira hacia abajo
-			}
+		// Resetear angulo al hacer una rotacion
+		if (rotBall < -360.0f) {
+			rotBall = 0.0f;
+		}
+
+		//Sincronizar rotacion del perro
+		rotDog = -rotBall * 0.8f;
+		//Primer encuentro (superior)
+		if (rotBall <= -150 && rotBall > -210) {
+			//Salto
+			float progress = (rotBall + 150.0f) / -60.0f; //0 o 1
+			salto = sin(progress * glm::pi<float>()) * 0.9f;
+			//Rotacion adicional
+			cabezazo = sin(progress * glm::pi<float>()) * 35.0f;
+		}
+		//Segundo encuentro (inferior)
+		else if (rotBall <= -330 && rotBall > -360) {
+			float progress = (rotBall + 330.0f) / -60.0f;
+			salto = sin(progress * glm::pi<float>()) * 0.9f;
+			cabezazo = sin(progress * glm::pi<float>()) * 35.0f;
+		}
+		//Suaviza animacion
+		else if (rotBall <= 0 && rotBall > -30) {
+			float progress = (rotBall + 330.0f) / -60.0f;
+			salto = sin(progress * glm::pi<float>()) * 0.9f;
+			cabezazo = sin(progress * glm::pi<float>()) * 35.0f;
 		}
 		else {
-			ballPosY -= ballSpeed * deltaTime;
-			if (ballPosY <= ballMinY) {
-				ballPosY = ballMinY;
-				movingUp = true; //Ira hacia arriba
-			}
+			salto = 0.0f;
+			cabezazo = 0.0f;
 		}
-	}
-	else
-	{
-		//rotBall = 0.0f;
 	}
 }
 
