@@ -1,6 +1,6 @@
-// Previo 11
+// Practica 11
 // Mendoza Rodriguez Angel Jesus
-// Fecha de entrega: 2 de noviembre 2025
+// Fecha de entrega: 7 de noviembre 2025
 // 319087288
 
 #include <iostream>
@@ -117,6 +117,7 @@ float tail = 0.0f;
 glm::vec3 dogPos (0.0f,0.0f,0.0f);
 float dogRot = 0.0f;
 bool step = false;
+float dogIncl = 0.0f;
 
 
 
@@ -136,7 +137,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);*/
 
 	// Create a GLFWwindow object that we can use for GLFW's functions
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Previo 11 Angel Mendoza Animacion maquina de estados", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Practica 11 Angel Mendoza Animacion maquina de estados", nullptr, nullptr);
 
 	if (nullptr == window)
 	{
@@ -313,6 +314,7 @@ int main()
 		//Body
 		modelTemp= model = glm::translate(model, dogPos);
 		modelTemp= model = glm::rotate(model, glm::radians(dogRot), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelTemp = model = glm::rotate(model, glm::radians(dogIncl), glm::vec3(0.0f, 0.0f, 1.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		DogBody.Draw(lightingShader);
 		//Head
@@ -507,6 +509,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 	if (keys[GLFW_KEY_B])
 	{
 		dogAnim = 1;
+		dogIncl = 0.0f;
 		
 	}
 	
@@ -517,20 +520,16 @@ void Animation() {
 		rotBall += 0.4f;
 		//printf("%f", rotBall);
 	}
-	
+
 	if (AnimDog)
 	{
 		rotDog -= 0.6f;
 		//printf("%f", rotBall);
 	}
-	
-	if (dogAnim == 1) {
-		// Walk Animation
-		if (dogPos.z >= 2.25f) {
-			return;;
-		}
 
-		// Estado 1
+	if (dogAnim >= 1 && dogAnim <= 7) {
+		// Walk Animation
+		
 		if (!step) {
 			RLegs += 0.3f;
 			FLegs += 0.3f;
@@ -549,10 +548,114 @@ void Animation() {
 			if (RLegs < -15.0f) // Condicion
 				step = false;
 		}
+	}
 
-		dogPos.z += 0.005f;
-		//printf("%f", RLegs);
-	}	
+	//Maquina de estados 
+	//E1: Caminar hacia adelante	
+	if (dogAnim == 1) {
+		// Regresar a vertical, si esta inclinado
+		if (dogIncl > 0.0f) {
+			dogIncl -= 0.5f;
+		}
+
+		else if (dogIncl > 0.0f) {
+			dogIncl -= 0.3f;
+		}
+
+		if (dogPos.z >= 2.25f) {
+			dogAnim = 2;
+		}
+		else {
+			dogPos.z += 0.005f;
+		}
+	}
+
+	// E2: Girar 90° izquierda (hacia x negativo)
+	else if (dogAnim == 2) {
+		// Inclinar hacia la izquierda
+		dogRot -= 0.15f;
+		if (dogIncl < 8.0f) {
+			dogIncl += 0.5f;
+		}
+		dogRot -= 0.15f;
+		if (dogRot <= -90.0f) {
+			dogAnim = 3;
+		}
+	}
+
+	//E3: Caminar hacia la izquierda
+	else if (dogAnim == 3) {
+		// Regresar vertical
+		if (dogIncl > 0.0f) {
+			dogIncl -= 0.5f; 
+		}
+
+		if (dogPos.x <= -2.25f) {
+			dogAnim = 4;
+		}
+		else {
+			dogPos.x -= 0.005f;
+		}
+	}
+
+	//E4: Hacer otro giro de 90°
+	else if (dogAnim == 4) {
+		//inclinar
+		if (dogIncl < 8.0f) {
+			dogIncl += 0.5f;
+		}
+
+		dogRot -= 0.15f;  // girar a la izquierda
+		if (dogRot <= -180.0f) {  //Espera -180°
+			dogAnim = 5;
+		}
+	}
+	//E5: Caminar hacia adelante
+	else if (dogAnim == 5) {
+		//regresar vertical
+		if (dogIncl > 0.0f) {
+			dogIncl -= 0.5f;
+		}
+
+		if (dogPos.z <= -2.25f) {
+			dogAnim = 6;
+		}
+		else {
+			dogPos.z -= 0.005f;
+		}
+	}
+	//E6: Girar al centro
+	else if (dogAnim == 6) {
+		//Inclinar
+		if (dogIncl < 8.0f) {
+			dogIncl += 0.5f;
+		}
+
+		dogRot -= 0.15f;
+		if (dogRot <= -315.0f) {
+			dogAnim = 7;
+		}
+	}
+	//E7: Caminar al centro
+	else if (dogAnim == 7) {
+		//Regresar a vertical
+		if (dogIncl > 0.5f) {
+			dogIncl -= 0.5f;
+		}
+		else if (dogIncl < 0.5f && dogIncl > 0.0f) {
+			dogIncl = 0.0f;
+		}
+
+		glm::vec3 direction = glm::normalize(glm::vec3(0) - dogPos);
+		float moveSpeed = 0.005f;
+		dogPos.x += direction.x * moveSpeed;
+		dogPos.z += direction.z * moveSpeed;
+
+		if (glm::length(dogPos) < 0.1f) {
+			dogAnim = 0;
+			dogPos = glm::vec3(0.0f);
+		}
+	}
 }
 
 void MouseCallback(GLFWwindow *window, double xPos, double yPos)
