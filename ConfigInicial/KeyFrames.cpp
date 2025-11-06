@@ -108,8 +108,10 @@ glm::vec3 Light1 = glm::vec3(0);
 float rotBall = 0.0f;
 float rotDog = 0.0f;
 int dogAnim = 0;
-float FLegs = 0.0f;
-float RLegs = 0.0f;
+float frontLeftLeg = 0.0f;  
+float frontRightLeg = 0.0f;  
+float backLeftLeg = 0.0f;   
+float backRightLeg = 0.0f; 
 float head = 0.0f;
 float tail = 0.0f;
 
@@ -133,7 +135,17 @@ typedef struct _frame {
 	float incZ;
 	float head;
 	float headInc;
-
+	
+	float tail;
+	float tailInc;
+	float frontLeftLeg;
+	float frontLeftLegInc;
+	float frontRightLeg;
+	float frontRightLegInc;
+	float backLeftLeg;
+	float backLeftLegInc;
+	float backRightLeg;
+	float backRightLegInc;
 
 
 }FRAME;
@@ -153,7 +165,12 @@ void saveFrame(void)
 	KeyFrame[FrameIndex].dogPosZ = dogPosZ;
 
 	KeyFrame[FrameIndex].rotDog = rotDog;
-	KeyFrame[FrameIndex].headInc = head;
+	KeyFrame[FrameIndex].head = head;
+	KeyFrame[FrameIndex].tail = tail;
+	KeyFrame[FrameIndex].frontLeftLeg = frontLeftLeg;
+	KeyFrame[FrameIndex].frontRightLeg = frontRightLeg;
+	KeyFrame[FrameIndex].backLeftLeg = backLeftLeg;
+	KeyFrame[FrameIndex].backRightLeg = backRightLeg;
 
 
 	FrameIndex++;
@@ -166,7 +183,12 @@ void resetElements(void)
 	dogPosZ = KeyFrame[0].dogPosZ;
 
 	rotDog = KeyFrame[0].rotDog;
-	head = KeyFrame[0].headInc;
+	head = KeyFrame[0].head;
+	tail = KeyFrame[0].tail;
+	frontLeftLeg = KeyFrame[0].frontLeftLeg;
+	frontRightLeg = KeyFrame[0].frontRightLeg;
+	backLeftLeg = KeyFrame[0].backLeftLeg;
+	backRightLeg = KeyFrame[0].backRightLeg;
 
 }
 void interpolation(void)
@@ -178,7 +200,11 @@ void interpolation(void)
 	KeyFrame[playIndex].headInc = (KeyFrame[playIndex + 1].head - KeyFrame[playIndex].head) / i_max_steps;
 
 	KeyFrame[playIndex].rotDogInc = (KeyFrame[playIndex + 1].rotDog - KeyFrame[playIndex].rotDog) / i_max_steps;
-
+	KeyFrame[playIndex].tailInc = (KeyFrame[playIndex + 1].tail - KeyFrame[playIndex].tail) / i_max_steps;
+	KeyFrame[playIndex].frontLeftLegInc = (KeyFrame[playIndex + 1].frontLeftLeg - KeyFrame[playIndex].frontLeftLeg) / i_max_steps;
+	KeyFrame[playIndex].frontRightLegInc = (KeyFrame[playIndex + 1].frontRightLeg - KeyFrame[playIndex].frontRightLeg) / i_max_steps;
+	KeyFrame[playIndex].backLeftLegInc = (KeyFrame[playIndex + 1].backLeftLeg - KeyFrame[playIndex].backLeftLeg) / i_max_steps;
+	KeyFrame[playIndex].backRightLegInc = (KeyFrame[playIndex + 1].backRightLeg - KeyFrame[playIndex].backRightLeg) / i_max_steps;
 }
 
 
@@ -263,6 +289,17 @@ int main()
 		KeyFrame[i].rotDogInc = 0;
 		KeyFrame[i].head = 0;
 		KeyFrame[i].headInc = 0;
+
+		KeyFrame[i].tail = 0;
+		KeyFrame[i].tailInc = 0;
+		KeyFrame[i].frontLeftLeg = 0;
+		KeyFrame[i].frontLeftLegInc = 0;
+		KeyFrame[i].frontRightLeg = 0;
+		KeyFrame[i].frontRightLegInc = 0;
+		KeyFrame[i].backLeftLeg = 0;
+		KeyFrame[i].backLeftLegInc = 0;
+		KeyFrame[i].backRightLeg = 0;
+		KeyFrame[i].backRightLegInc = 0;
 	}
 
 
@@ -413,26 +450,26 @@ int main()
 		DogTail.Draw(lightingShader);
 		//Front Left Leg
 		model = modelTemp;
-		model = glm::translate(model, glm::vec3(0.112f, -0.044f, 0.074f));
-		model = glm::rotate(model, glm::radians(FLegs), glm::vec3(-1.0f, 0.0f, 0.0f)); 
+		model = glm::translate(model, glm::vec3(0.1f, -0.04f, 0.07f));
+		model = glm::rotate(model, glm::radians(frontLeftLeg), glm::vec3(-1.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		F_LeftLeg.Draw(lightingShader);
 		//Front Right Leg
 		model = modelTemp; 
-		model = glm::translate(model, glm::vec3(-0.111f, -0.055f, 0.074f));
-		model = glm::rotate(model, glm::radians(FLegs), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(-0.1f, -0.05f, 0.07f));
+		model = glm::rotate(model, glm::radians(frontRightLeg), glm::vec3(1.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		F_RightLeg.Draw(lightingShader);
 		//Back Left Leg
 		model = modelTemp; 
-		model = glm::translate(model, glm::vec3(0.082f, -0.046, -0.218)); 
-		model = glm::rotate(model, glm::radians(RLegs), glm::vec3(1.0f, 0.0f, 0.0f)); 
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model)); 
+		model = glm::translate(model, glm::vec3(0.082f, -0.046, -0.218));
+		model = glm::rotate(model, glm::radians(backLeftLeg), glm::vec3(1.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		B_LeftLeg.Draw(lightingShader);
 		//Back Right Leg
 		model = modelTemp; 
 		model = glm::translate(model, glm::vec3(-0.083f, -0.057f, -0.231f));
-		model = glm::rotate(model, glm::radians(RLegs), glm::vec3(-1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(backRightLeg), glm::vec3(-1.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		B_RightLeg.Draw(lightingShader); 
 
@@ -500,9 +537,49 @@ void DoMovement()
 		head += 1.0f;
 	}
 
-	if (keys[GLFW_KEY_5])
+	if (keys[GLFW_KEY_5]) 
 	{
 		head -= 1.0f;
+	}
+		
+	//Cola
+	if (keys[GLFW_KEY_6]) {
+		tail += 1.0f;
+	}
+	if (keys[GLFW_KEY_Z]) {
+		tail -= 1.0f;
+	}
+
+	//Pata delantera izq
+	if (keys[GLFW_KEY_7]) {
+		frontLeftLeg += 1.0f;
+	}
+	if (keys[GLFW_KEY_X]) {
+		frontLeftLeg -= 1.0f;
+	}
+
+	//Pata delantera der
+	if (keys[GLFW_KEY_8]) {
+		frontRightLeg -= 1.0f;
+	}
+	if (keys[GLFW_KEY_C]) {
+		frontRightLeg += 1.0f;
+	}
+
+	//Trasera izq
+	if (keys[GLFW_KEY_9]) {
+		backLeftLeg += 1.0f;
+	}
+	if (keys[GLFW_KEY_V]) {
+		backLeftLeg -= 1.0f;
+	}
+
+	//Trasera derecha
+	if (keys[GLFW_KEY_0]) {
+		backRightLeg -= 1.0f;
+	}
+	if (keys[GLFW_KEY_B]) {
+		backRightLeg += 1.0f;
 	}
 
 	if (keys[GLFW_KEY_2])
@@ -692,7 +769,11 @@ void Animation() {
 			dogPosZ += KeyFrame[playIndex].incZ;
 			head += KeyFrame[playIndex].headInc;
 			rotDog += KeyFrame[playIndex].rotDogInc;
-
+			tail += KeyFrame[playIndex].tailInc;
+			frontLeftLeg += KeyFrame[playIndex].frontLeftLegInc;
+			frontRightLeg += KeyFrame[playIndex].frontRightLegInc;
+			backLeftLeg += KeyFrame[playIndex].backLeftLegInc;
+			backRightLeg += KeyFrame[playIndex].backRightLegInc;
 			i_curr_steps++;
 		}
 
